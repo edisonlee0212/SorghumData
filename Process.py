@@ -10,7 +10,13 @@ def calculate_distance(lat1, lon1, lat2, lon2):
     return distance((lat1, lon1), (lat2, lon2)).m
 
 def calculate_xy(lat1, lon1, lat2, lon2):
-    return distance((lat1, lon2), (lat2, lon2)).m, distance((lat2, lon1), (lat2, lon2)).m
+    x = distance((lat1, lon2), (lat2, lon2)).m
+    y = distance((lat2, lon1), (lat2, lon2)).m
+    if lat1 > lat2:
+        x = -x
+    if lon1 > lon2:
+        y = -y
+    return x, y
 
 class Processor:
     def __init__(self):
