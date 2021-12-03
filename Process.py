@@ -6,8 +6,10 @@ import random
 from geopy.distance import distance
 import csv
 
+
 def calculate_distance(lat1, lon1, lat2, lon2):
     return distance((lat1, lon1), (lat2, lon2)).m
+
 
 def calculate_xy(lat1, lon1, lat2, lon2):
     x = distance((lat1, lon2), (lat2, lon2)).m
@@ -17,6 +19,7 @@ def calculate_xy(lat1, lon1, lat2, lon2):
     if lon1 > lon2:
         y = -y
     return x, y
+
 
 class Processor:
     def __init__(self):
@@ -56,6 +59,7 @@ class Processor:
         for index in range(0, count):
             retVal.append([self.distance_pair[index][2], self.distance_pair[index][3]])
         return retVal
+
 
 if __name__ == '__main__':
     pros = Processor()
