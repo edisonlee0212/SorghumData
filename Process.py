@@ -26,6 +26,10 @@ class Processor:
         self.data = None
         self.center = None
         self.distance_pair = []
+        self.xMin = 99999
+        self.xMax = -99999
+        self.yMin = 99999
+        self.yMax = -99999
 
     @staticmethod
     def sortFunc(e):
@@ -41,36 +45,53 @@ class Processor:
         avglon /= self.data.count(axis=0)
         avglat /= self.data.count(axis=0)
         self.center = (avglat["lat"], avglon["lon"])
+        self.xMin = 99999
+        self.xMax = -99999
+        self.yMin = 99999
+        self.yMax = -99999
         for index, row in self.data.iterrows():
             x, y = calculate_xy(self.center[0], self.center[1], row["lat"], row["lon"])
             self.distance_pair.append(
                 [index, calculate_distance(self.center[0], self.center[1], row["lat"], row["lon"]), x, y])
-
+            self.xMin = min(self.xMin, x)
+            self.xMax = max(self.xMax, x)
+            self.yMin = min(self.yMin, y)
+            self.yMax = max(self.yMax, y)
         self.distance_pair.sort(key=self.sortFunc)
+        print("x:[" + str(self.xMin) + ", " + str(self.xMax) + "]")
+        print("y:[" + str(self.yMin) + ", " + str(self.yMax) + "]")
 
-    def retrieve_data(self, count):
+    def retrieve_data(self):
         retVal = []
-        for index in range(0, count):
+        for index in range(0, len(self.distance_pair)):
             retVal.append(self.distance_pair[index])
-        return retVal
+        return len(self.distance_pair), retVal
 
-    def retrieve_simple_data(self, count):
+    def retrieve_simple_data(self):
         retVal = []
-        for index in range(0, count):
+        for index in range(0, len(self.distance_pair)):
             retVal.append([self.distance_pair[index][2], self.distance_pair[index][3]])
-        return retVal
+        return len(self.distance_pair), retVal
 
 
 if __name__ == '__main__':
     pros = Processor()
     pros.import_data("2021-08-02__13-11-38-442_sorghum_detection.csv")
-    rows = pros.retrieve_data(20000)
+    count, rows = pros.retrieve_data()
+    f = open('simple.txt', 'w')
     np.savetxt("full.csv",
                rows,
                delimiter=", ",
                fmt='% s')
-    rows = pros.retrieve_simple_data(20000)
-    np.savetxt("simple.txt",
+    f.close()
+
+    count, rows = pros.retrieve_simple_data()
+    f = open('simple.txt', 'w')
+    f.write(str(count))
+    f.write("\n")
+    np.savetxt(f,
                rows,
                delimiter=" ",
                fmt='% s')
+    f.close()
+    exit(0)
